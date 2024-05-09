@@ -1,3 +1,4 @@
+import re
 import pandas as pd
 
 from insuranceCompanyConverterInterface import InsuranceCompanyConverterInterface
@@ -6,6 +7,9 @@ class AlkootConverter(InsuranceCompanyConverterInterface):
     def parseToStandardFormat(self, inputFilePath, outputFilePath):
         # Implement parsing logic for Insurance Company 1
         data = pd.read_csv(inputFilePath)
+
+        regex_pattern = r"SECONDARY ICD CODE \d+"
+        secondary_diagnosis_count = self.count_columns_with_phrase(inputFilePath, regex_pattern)
 
         # Mapping columns from Alkoot format to standard format
         column_mapping = {
@@ -19,14 +23,14 @@ class AlkootConverter(InsuranceCompanyConverterInterface):
             "SYMPTOMS": "CPT Code Description",
             "PRINCIPAL ICD CODE": "Principal ICD10 Code",
             "ICD DESCRIPTION": "Principal ICD10 Code Description",
-            "SECONDARY ICD CODE 1": "Secondary ICD10 Code 1",
-            "SECONDARY ICD CODE 2": "Secondary ICD10 Code 2",
-            "SECONDARY ICD CODE 3": "Secondary ICD10 Code 3",
-            "SECONDARY ICD CODE 4": "Secondary ICD10 Code 4",
-            "SECONDARY ICD CODE 5": "Secondary ICD10 Code 5",
             "QUANTITY": "Quantity",
             "AMOUNT CLAIMED": "Amount Requested",
         }
+        secon_diag_key = f"SECONDARY ICD CODE {{}}"
+        secon_diag_value = f"Secondary ICD10 Code {{}}"
+        self.generate_column_mapping(column_mapping, 
+                                    secon_diag_key, secon_diag_value,
+                                    secondary_diagnosis_count)
 
         # Filter columns based on the mapping
         columns_to_keep = list(column_mapping.keys())
@@ -37,17 +41,6 @@ class AlkootConverter(InsuranceCompanyConverterInterface):
 
         # Add additional columns to the DataFrame
         additional_columns = {
-            "Secondary ICD10 Code 1 Description": "", "Secondary ICD10 Code 2 Description": "",
-            "Secondary ICD10 Code 3 Description": "", "Secondary ICD10 Code 4 Description": "",
-            "Secondary ICD10 Code 5 Description": "",
-            "Secondary ICD10 Code 6": "", "Secondary ICD10 Code 6 Description": "",
-            "Secondary ICD10 Code 7": "", "Secondary ICD10 Code 7 Description": "",
-            "Secondary ICD10 Code 8": "", "Secondary ICD10 Code 8 Description": "",
-            "Secondary ICD10 Code 9": "", "Secondary ICD10 Code 9 Description": "",
-            "Secondary ICD10 Code 10": "", "Secondary ICD10 Code 10 Description": "",
-            "Secondary ICD10 Code 11": "", "Secondary ICD10 Code 11 Description": "",
-            "Secondary ICD10 Code 12": "", "Secondary ICD10 Code 12 Description": "",
-            "Secondary ICD10 Code 13": "", "Secondary ICD10 Code 13 Description": "",
             "QTY APPROVED": "","Approval Status": "", "GM Decision (subclaim level)": "",
             "Submitter User Note": "", "Patient DOB": "", "Patient Gender": ""
         }
@@ -59,22 +52,14 @@ class AlkootConverter(InsuranceCompanyConverterInterface):
             "Invoice Number", "Patient ID", "Patient Name", "Clinician Name", "Clinician ID", 
             "Procedure Date", "CPT Code", "CPT Code Description",
             "Principal ICD10 Code", "Principal ICD10 Code Description",
-            "Secondary ICD10 Code 1", "Secondary ICD10 Code 1 Description",
-            "Secondary ICD10 Code 2", "Secondary ICD10 Code 2 Description",
-            "Secondary ICD10 Code 3", "Secondary ICD10 Code 3 Description",
-            "Secondary ICD10 Code 4", "Secondary ICD10 Code 4 Description",
-            "Secondary ICD10 Code 5", "Secondary ICD10 Code 5 Description",
-            "Secondary ICD10 Code 6", "Secondary ICD10 Code 6 Description",
-            "Secondary ICD10 Code 7", "Secondary ICD10 Code 7 Description",
-            "Secondary ICD10 Code 8", "Secondary ICD10 Code 8 Description",
-            "Secondary ICD10 Code 9", "Secondary ICD10 Code 9 Description",
-            "Secondary ICD10 Code 10", "Secondary ICD10 Code 10 Description",
-            "Secondary ICD10 Code 11", "Secondary ICD10 Code 11 Description",
-            "Secondary ICD10 Code 12", "Secondary ICD10 Code 12 Description",
-            "Secondary ICD10 Code 13", "Secondary ICD10 Code 13 Description",
             "QTY APPROVED", "Quantity", "Amount Requested", "Approval Status", "GM Decision (subclaim level)",
             "Submitter User Note", "Patient DOB", "Patient Gender"
         ]
+        insert_index = desired_order.index("Principal ICD10 Code Description") + 1
+        secon_col_name = secon_diag_value
+        self.generate_desired_order(desired_order, insert_index, 
+                                    secondary_diagnosis_count,
+                                    secon_col_name)
         data = data[desired_order]
 
         # Write the standardized data to the output file
@@ -84,6 +69,9 @@ class AlkootConverter(InsuranceCompanyConverterInterface):
     def convertFromStandardFormat(self, inputFilePath, outputFilePath):
         # Implement conversion logic from standard format to Insurance Company 1 format
         data = pd.read_csv(inputFilePath)
+
+        regex_pattern = r"Secondary ICD10 Code \d+"
+        secondary_diagnosis_count = self.count_columns_with_phrase(inputFilePath, regex_pattern)
 
         # Mapping columns from standard format to Alkoot format
         column_mapping = {
@@ -97,14 +85,14 @@ class AlkootConverter(InsuranceCompanyConverterInterface):
             "CPT Code Description": "SYMPTOMS",
             "Principal ICD10 Code": "PRINCIPAL ICD CODE",
             "Principal ICD10 Code Description": "ICD DESCRIPTION",
-            "Secondary ICD10 Code 1": "SECONDARY ICD CODE 1",
-            "Secondary ICD10 Code 2": "SECONDARY ICD CODE 2",
-            "Secondary ICD10 Code 3": "SECONDARY ICD CODE 3",
-            "Secondary ICD10 Code 4": "SECONDARY ICD CODE 4",
-            "Secondary ICD10 Code 5": "SECONDARY ICD CODE 5",
             "Quantity": "QUANTITY",
             "Amount Requested": "AMOUNT CLAIMED"
         }
+        secon_diag_key = f"Secondary ICD10 Code {{}}" 
+        secon_diag_value = f"SECONDARY ICD CODE {{}}"
+        self.generate_column_mapping(column_mapping, 
+                                    secon_diag_key, secon_diag_value,
+                                    secondary_diagnosis_count)
 
         # Filter columns based on the mapping
         columns_to_keep = list(column_mapping.keys())
@@ -128,13 +116,17 @@ class AlkootConverter(InsuranceCompanyConverterInterface):
         desired_order = [
             "S.No", "INVOICE NO.", "MEMBER NAME", "MEMBER ID", "PreApproval No.", "DATE OF TREATMENT /ADMISSION",
             "DATE OF DISCHARGE", "SYSTEM OF MEDICINE", "BENEFIT TYPE", "ENCOUNTER TYPE", "CLINICIAN ID",
-            "CLINICIAN NAME", "SYMPTOMS", "PRINCIPAL ICD CODE", "ICD DESCRIPTION", "SECONDARY ICD CODE 1",
-            "SECONDARY ICD CODE 2", "SECONDARY ICD CODE 3", "SECONDARY ICD CODE 4", "SECONDARY ICD CODE 5",
+            "CLINICIAN NAME", "SYMPTOMS", "PRINCIPAL ICD CODE", "ICD DESCRIPTION",
             "FIRST  INCIDENT DATE", "FIRST REPORTED DATE", "SERVICE DATE", "Activity Type",
             "INTERNAL  SERVICE CODE", "SERVICE DESCRIPTION", "CPT CODE", "AMOUNT CLAIMED", "QUANTITY",
             "Tooth Number (For Dental Only)", "Date of LMP (For Maternity Only)", "Nature Of Conception(For Maternity Only)",
             "OBSERVATION", "Event Reference Number"
         ]
+        insert_index = desired_order.index("ICD DESCRIPTION") + 1
+        secon_col_name = secon_diag_value
+        self.generate_desired_order(desired_order, insert_index,
+                                    secondary_diagnosis_count,
+                                    secon_col_name)
         data = data[desired_order]
 
         data.to_csv(outputFilePath, index=False)

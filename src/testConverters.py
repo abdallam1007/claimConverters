@@ -33,8 +33,8 @@ AlkootDataPath = "/Users/abdallamohamed/Desktop/Avey/claimConverters/src/Externa
 standardizedAlkootDataPath = "/Users/abdallamohamed/Desktop/Avey/claimConverters/src/results/Alkoot/ClaimAlkoot1ToStandard.csv"
 convertedToAlkootDataPath = "/Users/abdallamohamed/Desktop/Avey/claimConverters/src/results/Alkoot/ClaimStandardToAlkoot1.csv"
 
-AlkootConverter.parseToStandardFormat(AlkootDataPath, standardizedAlkootDataPath)
-AlkootConverter.convertFromStandardFormat(standardizedAlkootDataPath, convertedToAlkootDataPath)
+#AlkootConverter.parseToStandardFormat(AlkootDataPath, standardizedAlkootDataPath)
+#AlkootConverter.convertFromStandardFormat(standardizedAlkootDataPath, convertedToAlkootDataPath)
 
 
 # Test QLM

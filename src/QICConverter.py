@@ -1,3 +1,4 @@
+import re
 import pandas as pd
 
 from insuranceCompanyConverterInterface import InsuranceCompanyConverterInterface
@@ -28,19 +29,6 @@ class QICConverter(InsuranceCompanyConverterInterface):
         # Add additional columns to the DataFrame
         additional_columns = {
             "Patient ID": "", "Patient Name": "", "Clinician ID": "", "Procedure Date": "",
-            "Secondary ICD10 Code 1": "", "Secondary ICD10 Code 1 Description": "",
-            "Secondary ICD10 Code 2": "", "Secondary ICD10 Code 2 Description": "",
-            "Secondary ICD10 Code 3": "", "Secondary ICD10 Code 3 Description": "",
-            "Secondary ICD10 Code 4": "", "Secondary ICD10 Code 4 Description": "",
-            "Secondary ICD10 Code 5": "", "Secondary ICD10 Code 5 Description": "",
-            "Secondary ICD10 Code 6": "", "Secondary ICD10 Code 6 Description": "",
-            "Secondary ICD10 Code 7": "", "Secondary ICD10 Code 7 Description": "",
-            "Secondary ICD10 Code 8": "", "Secondary ICD10 Code 8 Description": "",
-            "Secondary ICD10 Code 9": "", "Secondary ICD10 Code 9 Description": "",
-            "Secondary ICD10 Code 10": "", "Secondary ICD10 Code 10 Description": "",
-            "Secondary ICD10 Code 11": "", "Secondary ICD10 Code 11 Description": "",
-            "Secondary ICD10 Code 12": "", "Secondary ICD10 Code 12 Description": "",
-            "Secondary ICD10 Code 13": "", "Secondary ICD10 Code 13 Description": "",
             "QTY APPROVED": "", "Quantity": "", "Amount Requested": "", "Approval Status": "", 
             "GM Decision (subclaim level)": "", "Submitter User Note": "", "Patient DOB": ""
         }
@@ -52,19 +40,6 @@ class QICConverter(InsuranceCompanyConverterInterface):
             "Invoice Number", "Patient ID", "Patient Name", "Clinician Name", "Clinician ID", 
             "Procedure Date", "CPT Code", "CPT Code Description",
             "Principal ICD10 Code", "Principal ICD10 Code Description",
-            "Secondary ICD10 Code 1", "Secondary ICD10 Code 1 Description",
-            "Secondary ICD10 Code 2", "Secondary ICD10 Code 2 Description",
-            "Secondary ICD10 Code 3", "Secondary ICD10 Code 3 Description",
-            "Secondary ICD10 Code 4", "Secondary ICD10 Code 4 Description",
-            "Secondary ICD10 Code 5", "Secondary ICD10 Code 5 Description",
-            "Secondary ICD10 Code 6", "Secondary ICD10 Code 6 Description",
-            "Secondary ICD10 Code 7", "Secondary ICD10 Code 7 Description",
-            "Secondary ICD10 Code 8", "Secondary ICD10 Code 8 Description",
-            "Secondary ICD10 Code 9", "Secondary ICD10 Code 9 Description",
-            "Secondary ICD10 Code 10", "Secondary ICD10 Code 10 Description",
-            "Secondary ICD10 Code 11", "Secondary ICD10 Code 11 Description",
-            "Secondary ICD10 Code 12", "Secondary ICD10 Code 12 Description",
-            "Secondary ICD10 Code 13", "Secondary ICD10 Code 13 Description",
             "QTY APPROVED", "Quantity", "Amount Requested", "Approval Status", "GM Decision (subclaim level)",
             "Submitter User Note", "Patient DOB", "Patient Gender"
         ]
